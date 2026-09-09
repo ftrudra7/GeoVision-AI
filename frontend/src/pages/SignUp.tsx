@@ -30,19 +30,22 @@ const SignUp = () => {
       });
 
       // 2. Log in automatically
-      const loginParams = new URLSearchParams();
-      loginParams.append('username', formData.email);
-      loginParams.append('password', formData.password);
-      
-      const loginRes = await api.post('/api/auth/login', loginParams, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      const loginRes = await api.post('/api/auth/login', {
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password
       });
 
       await login(loginRes.data.access_token);
       navigate('/dashboard');
     } catch (err: any) {
-      if (err.response?.status === 409) {
+      if (err.message === 'Network Error' || err.code === 'ERR_NETWORK') {
+        setError('Cannot reach GeoVision API. Make sure the backend is running.');
+      } else if (err.response?.status === 409) {
         setError('An account with this email already exists.');
+      } else if (err.response?.status === 422) {
+        setError('Please check the information you entered.');
+      } else if (err.response?.status >= 500) {
+        setError('GeoVision server error. Check the backend logs.');
       } else {
         setError(err.response?.data?.detail || 'Unable to connect to GeoVision. Please try again.');
       }
