@@ -3,8 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Globe, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { GlassPanel, GlassButton, GlassInput } from '../components/ui/Glass';
+import { GlobeScene } from '../components/globe/GlobeScene';
 
-const SignIn = () => {
+export default function SignIn() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,15 +29,15 @@ const SignIn = () => {
       navigate('/dashboard');
     } catch (err: any) {
       if (err.message === 'Network Error' || err.code === 'ERR_NETWORK') {
-        setError('Cannot reach GeoVision API. Make sure the backend is running.');
+        setError('cannot reach geovision api. make sure the backend is running.');
       } else if (err.response?.status === 401) {
-        setError('Invalid email or password.');
+        setError('invalid email or password.');
       } else if (err.response?.status === 422) {
-        setError('Please check the information you entered.');
+        setError('please check the information you entered.');
       } else if (err.response?.status >= 500) {
-        setError('GeoVision server error. Check the backend logs.');
+        setError('geovision server error. check the backend logs.');
       } else {
-        setError(err.response?.data?.detail || 'Unable to connect to GeoVision. Please try again.');
+        setError(err.response?.data?.detail || 'unable to connect to geovision. please try again.');
       }
     } finally {
       setLoading(false);
@@ -42,75 +45,75 @@ const SignIn = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-background font-sans text-primary">
-      {/* Left Panel */}
-      <div className="hidden lg:flex flex-1 flex-col justify-center items-center relative overflow-hidden border-r border-border bg-panel">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-accent/10 via-transparent to-transparent opacity-50"></div>
-        <div className="w-[120%] h-[120%] absolute border-[0.5px] border-border/30 rounded-full animate-[spin_120s_linear_infinite]"></div>
-        <div className="w-[100%] h-[100%] absolute border-[0.5px] border-accent/20 rounded-full animate-[spin_90s_linear_infinite_reverse]"></div>
-        <div className="z-10 text-center">
-          <Globe className="w-16 h-16 text-accent mx-auto mb-6 opacity-80" />
-          <h2 className="text-3xl font-light tracking-widest uppercase mb-2">GeoVision AI</h2>
-          <p className="text-secondary font-mono text-sm">SECURE ACCESS TERMINAL</p>
-        </div>
+    <div className="relative min-h-screen flex items-center justify-center bg-background text-primary overflow-hidden">
+      {/* Background Globe & Ambient Light */}
+      <div className="absolute inset-0 z-0 opacity-40">
+        <GlobeScene />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-background to-background" />
       </div>
 
-      {/* Right Panel */}
-      <div className="flex-1 flex flex-col justify-center px-8 sm:px-16 lg:px-24">
-        <div className="max-w-md w-full mx-auto">
-          <div className="mb-8">
-            <h1 className="text-2xl font-light tracking-wide mb-2">AUTHENTICATE</h1>
-            <p className="text-sm text-secondary">Enter credentials to access your geospatial workspace.</p>
-          </div>
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="z-10 w-full max-w-md px-6"
+      >
+        <div className="text-center mb-8">
+          <Globe className="w-10 h-10 text-accent mx-auto mb-4 opacity-80" />
+          <h1 className="text-2xl font-medium tracking-tight mb-2">welcome back</h1>
+          <p className="text-sm text-secondary">enter credentials to access your workspace.</p>
+        </div>
 
+        <GlassPanel className="p-8">
           {error && (
-            <div className="mb-6 p-3 bg-error/10 border border-error/50 rounded flex items-start gap-3 text-sm text-error">
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="mb-6 p-3 bg-error/10 border border-error/50 rounded flex items-start gap-3 text-sm text-error"
+            >
               <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
               <p>{error}</p>
-            </div>
+            </motion.div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-xs font-mono text-secondary mb-1 uppercase tracking-wider">Email Address</label>
-              <input 
+              <label className="block text-xs font-medium text-secondary mb-1.5 ml-1">email address</label>
+              <GlassInput 
                 type="email" 
                 required
-                className="w-full bg-panel border border-border rounded px-4 py-2.5 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                 value={formData.email}
                 onChange={e => setFormData({...formData, email: e.target.value})}
               />
             </div>
             <div>
-              <label className="block text-xs font-mono text-secondary mb-1 uppercase tracking-wider">Password</label>
-              <input 
+              <label className="block text-xs font-medium text-secondary mb-1.5 ml-1">password</label>
+              <GlassInput 
                 type="password" 
                 required
-                className="w-full bg-panel border border-border rounded px-4 py-2.5 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                 value={formData.password}
                 onChange={e => setFormData({...formData, password: e.target.value})}
               />
             </div>
 
-            <button 
+            <GlassButton 
               type="submit" 
+              variant="primary"
               disabled={loading}
-              className="w-full mt-6 bg-primary text-background hover:bg-white/90 font-medium py-2.5 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full mt-6 py-3"
             >
-              {loading ? 'AUTHENTICATING...' : 'SIGN IN'}
-            </button>
+              {loading ? 'authenticating...' : 'sign in'}
+            </GlassButton>
           </form>
 
           <p className="mt-8 text-center text-sm text-secondary">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-accent hover:underline">
-              Create one
+            don't have an account?{' '}
+            <Link to="/signup" className="text-accent hover:text-white transition-colors">
+              create one
             </Link>
           </p>
-        </div>
-      </div>
+        </GlassPanel>
+      </motion.div>
     </div>
   );
-};
-
-export default SignIn;
+}

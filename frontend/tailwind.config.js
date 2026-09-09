@@ -7,19 +7,20 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#05080D',
-        panel: '#0B111A',
-        'panel-elevated': '#101823',
-        primary: '#ffffff',
-        secondary: '#94a3b8',
+        background: '#02060a',
+        panel: '#061019',
+        'panel-elevated': 'rgba(10, 18, 28, 0.5)',
+        primary: '#f5f7fa',
+        secondary: '#91a4b8',
         accent: '#06b6d4',
         success: '#10b981',
         warning: '#f59e0b',
         error: '#ef4444',
-        border: 'rgba(255, 255, 255, 0.1)',
+        border: 'rgba(255, 255, 255, 0.08)',
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['"Aeonik Pro"', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
       },
     },
   },

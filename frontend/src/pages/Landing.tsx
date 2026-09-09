@@ -1,138 +1,194 @@
-import React from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import type { Variants } from 'framer-motion';
+import { Navbar } from '../components/navigation/Navbar';
+import { GlobeScene } from '../components/globe/GlobeScene';
+import { GlassCard, GlassButton } from '../components/ui/Glass';
+import { Satellite, Map, Zap, Layers, BarChart, Clock, ArrowRight, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Globe, Crosshair, Map as MapIcon, Database, Activity, GitCommit } from 'lucide-react';
 
-const Landing = () => {
+const FADE_UP_ANIMATION_VARIANTS: Variants = {
+  hidden: { opacity: 0, y: 30, filter: 'blur(8px)' },
+  show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { type: "spring", stiffness: 100, damping: 20 } },
+};
+
+export default function Landing() {
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 1000], [0, 200]);
+  const opacity1 = useTransform(scrollY, [0, 500], [1, 0]);
+
   return (
-    <div className="min-h-screen bg-background text-primary font-sans">
-      {/* Navbar */}
-      <nav className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-2">
-              <Globe className="text-accent w-6 h-6" />
-              <span className="font-bold tracking-wider uppercase text-sm">GeoVision AI</span>
-            </div>
-            <div className="hidden md:flex gap-8 text-sm font-medium text-secondary">
-              <a href="#features" className="hover:text-primary transition-colors">FEATURES</a>
-              <a href="#how-it-works" className="hover:text-primary transition-colors">HOW IT WORKS</a>
-              <a href="#platform" className="hover:text-primary transition-colors">PLATFORM</a>
-            </div>
-            <div className="flex gap-4">
-              <Link to="/signin" className="text-sm font-medium text-secondary hover:text-primary px-4 py-2">
-                SIGN IN
-              </Link>
-              <Link to="/signup" className="text-sm font-medium bg-accent/10 text-accent border border-accent/20 hover:bg-accent/20 px-4 py-2 rounded transition-colors">
-                GET STARTED
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="relative min-h-screen bg-background text-primary overflow-x-hidden selection:bg-accent/30 selection:text-white">
+      <Navbar />
 
-      {/* Hero */}
-      <div className="relative overflow-hidden border-b border-border">
-        {/* Background Map Simulation */}
-        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/20 via-background to-background"></div>
-          {/* Simulated grid lines */}
-          <div className="w-full h-full bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-        </div>
+      {/* Hero Section */}
+      <section className="relative h-screen flex flex-col justify-center items-center text-center px-6 overflow-hidden">
+        {/* Spatial Background */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-panel via-background to-background z-0" />
+        <GlobeScene />
+        
+        <motion.div 
+          style={{ y: y1, opacity: opacity1 }}
+          className="relative z-10 max-w-4xl mx-auto flex flex-col items-center mt-12"
+          initial="hidden"
+          animate="show"
+          viewport={{ once: true }}
+          variants={{
+            hidden: {},
+            show: {
+              transition: {
+                staggerChildren: 0.15,
+                delayChildren: 0.2
+              }
+            }
+          }}
+        >
+          <motion.div variants={FADE_UP_ANIMATION_VARIANTS} className="mb-8">
+            <span className="glass px-4 py-1.5 rounded-full text-xs font-mono text-accent flex items-center gap-2 border-accent/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+              system online
+            </span>
+          </motion.div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-40 relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-accent/30 bg-accent/5 text-accent text-xs font-mono mb-8">
-            <span className="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
-            SYSTEM ONLINE
-          </div>
-          <h1 className="text-5xl md:text-7xl font-light tracking-tight mb-6">
-            Understand the Earth.<br />
-            <span className="font-bold">Ask it anything.</span>
-          </h1>
-          <p className="text-secondary max-w-2xl mx-auto text-lg mb-10 leading-relaxed">
-            GeoVision AI transforms natural-language questions into intelligent geospatial analysis using satellite imagery, GIS workflows, and AI-powered reasoning.
-          </p>
-          <div className="flex justify-center gap-4">
-            <Link to="/signup" className="bg-accent text-background font-medium px-8 py-3 rounded hover:bg-cyan-400 transition-colors shadow-[0_0_20px_rgba(6,182,212,0.3)]">
-              Start Analyzing
+          <motion.h1 variants={FADE_UP_ANIMATION_VARIANTS} className="text-5xl md:text-7xl font-medium tracking-tight leading-[0.95] mb-6">
+            understand the earth.<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-secondary">ask it anything.</span>
+          </motion.h1>
+
+          <motion.p variants={FADE_UP_ANIMATION_VARIANTS} className="text-lg md:text-xl text-secondary max-w-2xl font-light tracking-wide mb-10 leading-relaxed">
+            turn natural-language questions into intelligent geospatial analysis.
+          </motion.p>
+
+          <motion.div variants={FADE_UP_ANIMATION_VARIANTS} className="flex flex-col sm:flex-row items-center gap-4">
+            <Link to="/signup">
+              <GlassButton variant="primary" className="py-3 px-8 text-sm">
+                start analyzing <ArrowRight className="w-4 h-4 ml-1" />
+              </GlassButton>
             </Link>
-            <a href="#platform" className="border border-border text-primary font-medium px-8 py-3 rounded hover:bg-white/5 transition-colors">
-              Explore Platform
+            <a href="#platform">
+              <GlassButton className="py-3 px-8 text-sm">
+                explore platform
+              </GlassButton>
             </a>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        </motion.div>
+      </section>
 
-      {/* Features */}
-      <div id="features" className="py-24 bg-panel">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-xs font-mono text-accent tracking-widest mb-2">CAPABILITIES</h2>
-            <h3 className="text-3xl font-light">From Question to Insight</h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Features Section */}
+      <section id="features" className="relative py-32 px-6 z-10 bg-background">
+        <div className="max-w-7xl mx-auto">
+          <motion.div 
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={{
+              hidden: {},
+              show: { transition: { staggerChildren: 0.1 } }
+            }}
+            className="text-center mb-20"
+          >
+            <motion.h2 variants={FADE_UP_ANIMATION_VARIANTS} className="text-3xl md:text-4xl font-medium tracking-tight mb-4">
+              from question to insight
+            </motion.h2>
+            <motion.p variants={FADE_UP_ANIMATION_VARIANTS} className="text-secondary">
+              the next generation of geospatial intelligence.
+            </motion.p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { icon: Globe, title: "SATELLITE INTELLIGENCE", desc: "Analyze satellite imagery to understand geographic patterns.", badge: "COMING SOON" },
-              { icon: Crosshair, title: "CHANGE DETECTION", desc: "Identify changes in urban development, vegetation, water bodies, and land cover.", badge: "COMING SOON" },
-              { icon: Activity, title: "AI GEOSPATIAL ANALYST", desc: "Ask complex spatial questions in natural language.", badge: "COMING SOON" },
-              { icon: GitCommit, title: "AUTOMATED GIS WORKFLOWS", desc: "Transform natural-language requests into sequential geoprocessing operations.", badge: "COMING SOON" },
-              { icon: MapIcon, title: "INTERACTIVE MAPS", desc: "Explore spatial results through an interactive geographic interface.", badge: "ACTIVE" },
-              { icon: Database, title: "TRACEABLE ANALYSIS", desc: "Understand the workflow used to produce each result.", badge: "ACTIVE" },
-            ].map((f, i) => (
-              <div key={i} className="p-6 border border-border bg-background/50 hover:bg-background transition-colors group relative">
-                <div className="absolute top-4 right-4">
-                  <span className={`text-[10px] font-mono px-2 py-1 border ${f.badge === 'ACTIVE' ? 'border-accent/50 text-accent' : 'border-secondary/30 text-secondary'}`}>
-                    {f.badge}
-                  </span>
-                </div>
-                <f.icon className="w-8 h-8 text-secondary group-hover:text-accent transition-colors mb-4" />
-                <h4 className="font-mono text-sm tracking-wider mb-2">{f.title}</h4>
-                <p className="text-sm text-secondary leading-relaxed">{f.desc}</p>
-              </div>
+              { icon: Satellite, title: "satellite intelligence", desc: "access massive archives of multi-spectral imagery instantly." },
+              { icon: Zap, title: "change detection", desc: "automatically highlight structural and environmental shifts over time." },
+              { icon: Map, title: "ai geospatial analyst", desc: "process natural language queries into executable gis workflows." },
+              { icon: Layers, title: "automated gis workflows", desc: "orchestrate complex geospatial tasks without writing scripts." },
+              { icon: BarChart, title: "interactive maps", desc: "beautiful, performant webgl visualizations of your data." },
+              { icon: Clock, title: "traceable analysis", desc: "transparent methodology for every ai-generated insight." },
+            ].map((feature, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              >
+                <GlassCard className="h-full">
+                  <feature.icon className="w-6 h-6 text-accent mb-4 opacity-80" />
+                  <h3 className="text-lg font-medium mb-2">{feature.title}</h3>
+                  <p className="text-secondary text-sm leading-relaxed">{feature.desc}</p>
+                </GlassCard>
+              </motion.div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* How it Works */}
-      <div id="how-it-works" className="py-24 border-t border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* How It Works Section */}
+      <section id="how-it-works" className="relative py-32 px-6 z-10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_left,_var(--tw-gradient-stops))] from-accent/5 via-background to-background opacity-50 pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto relative">
+          <div className="text-center mb-24">
+            <h2 className="text-3xl md:text-4xl font-medium tracking-tight">the workflow</h2>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {[
-              { step: "01", title: "ASK", desc: "Describe the geographic problem in natural language." },
-              { step: "02", title: "PLAN", desc: "GeoVision determines the required geospatial operations." },
-              { step: "03", title: "ANALYZE", desc: "GIS and AI tools process relevant datasets." },
-              { step: "04", title: "UNDERSTAND", desc: "Receive maps, metrics, visualizations, and explanations." }
-            ].map((s, i) => (
-              <div key={i} className="relative">
-                {i !== 3 && <div className="hidden md:block absolute top-6 left-full w-full border-t border-dashed border-border -ml-4 z-0"></div>}
-                <div className="relative z-10 bg-background pr-4">
-                  <div className="text-4xl font-light text-accent/20 mb-4">{s.step}</div>
-                  <h4 className="font-mono text-sm tracking-wider mb-2 text-primary">{s.title}</h4>
-                  <p className="text-sm text-secondary">{s.desc}</p>
+              { step: "01", title: "ask", desc: "describe what you want to know in plain english." },
+              { step: "02", title: "plan", desc: "geovision formulates an optimized analytical strategy." },
+              { step: "03", title: "analyze", desc: "distributed execution of gis tools and models." },
+              { step: "04", title: "understand", desc: "interactive reports and visual data overlays." },
+            ].map((stage, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, filter: 'blur(8px)' }}
+                whileInView={{ opacity: 1, filter: 'blur(0px)' }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, delay: i * 0.15 }}
+                className="relative"
+              >
+                {i < 3 && <div className="hidden md:block absolute top-6 left-[60%] w-full h-[1px] bg-gradient-to-r from-accent/50 to-transparent" />}
+                <div className="mb-4">
+                  <span className="font-mono text-accent text-sm tracking-widest">{stage.step}</span>
                 </div>
-              </div>
+                <h3 className="text-xl font-medium mb-2">{stage.title}</h3>
+                <p className="text-secondary text-sm">{stage.desc}</p>
+              </motion.div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="relative py-40 px-6 overflow-hidden z-10 flex flex-col items-center text-center">
+        <div className="absolute inset-0 bg-panel/50 z-0 border-t border-white/5" />
+        <div className="relative z-10 max-w-2xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-medium tracking-tight mb-6">ask the earth anything.</h2>
+          <p className="text-secondary text-lg mb-10">turn complex spatial questions into actionable intelligence.</p>
+          <Link to="/signup">
+            <GlassButton variant="primary" className="py-4 px-10 text-sm">
+              start analyzing
+            </GlassButton>
+          </Link>
+        </div>
+      </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-12 bg-panel">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Globe className="text-accent w-5 h-5" />
-              <span className="font-bold tracking-wider uppercase text-sm">GeoVision AI</span>
-            </div>
-            <p className="text-xs text-secondary">Intelligent geospatial analysis for a changing world.</p>
+      <footer className="relative py-8 px-6 border-t border-white/5 z-10 bg-background text-sm text-secondary">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Globe className="w-4 h-4 text-accent opacity-50" />
+            <span>geovision ai</span>
           </div>
-          <div className="text-xs text-secondary font-mono">
-            GeoVision AI — Final Year Capstone Project
+          <div className="flex gap-6">
+            <a href="#features" className="hover:text-primary transition-colors">features</a>
+            <a href="#how-it-works" className="hover:text-primary transition-colors">how it works</a>
+            <a href="#platform" className="hover:text-primary transition-colors">platform</a>
+            <Link to="/signin" className="hover:text-primary transition-colors">sign in</Link>
+          </div>
+          <div className="font-mono text-xs opacity-50">
+            geospatial intelligence, reimagined.
           </div>
         </div>
       </footer>
     </div>
   );
-};
-
-export default Landing;
+}
