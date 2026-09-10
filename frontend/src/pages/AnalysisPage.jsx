@@ -118,7 +118,7 @@ export default function AnalysisPage() {
       <Sidebar />
 
       {/* Main Content Layout */}
-      <div className="absolute top-8 left-72 right-8 bottom-8 z-20 pointer-events-none overflow-y-auto">
+      <div className="absolute top-16 lg:top-8 left-4 lg:left-72 right-4 lg:right-8 bottom-4 lg:bottom-8 z-20 pointer-events-none overflow-y-auto">
         <div className="max-w-3xl pointer-events-auto space-y-6">
           {/* Header */}
           <div className="p-4 rounded-2xl text-readable-backdrop space-y-1">

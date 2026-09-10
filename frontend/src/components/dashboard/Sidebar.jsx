@@ -13,11 +13,14 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Menu,
+  X,
 } from 'lucide-react';
 import GlassPanel from '../common/GlassPanel';
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -32,11 +35,34 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside
-      className={`fixed left-4 top-4 bottom-4 z-40 flex flex-col justify-between p-3 rounded-2xl glass-panel border border-white/10 transition-all duration-300 pointer-events-auto ${
-        collapsed ? 'w-16' : 'w-60'
-      }`}
-    >
+    <>
+      {/* Mobile Menu Toggle Button */}
+      <div className="fixed top-4 left-4 z-50 lg:hidden pointer-events-auto">
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="p-2.5 rounded-xl glass-level-2 border border-white/15 text-gray-200 hover:text-white shadow-xl flex items-center justify-center transition-colors"
+          aria-label="Toggle navigation menu"
+        >
+          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
+      </div>
+
+      {/* Mobile Backdrop Overlay */}
+      {mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden pointer-events-auto transition-opacity"
+        />
+      )}
+
+      {/* Sidebar Navigation */}
+      <aside
+        className={`fixed left-4 top-4 bottom-4 z-40 flex flex-col justify-between p-3 rounded-2xl glass-level-2 border border-white/10 transition-all duration-300 pointer-events-auto ${
+          collapsed ? 'lg:w-16' : 'lg:w-60'
+        } ${
+          mobileOpen ? 'w-64 translate-x-0' : '-translate-x-[150%] lg:translate-x-0'
+        }`}
+      >
       {/* Top Brand & Toggle */}
       <div className="space-y-6">
         <div className="flex items-center justify-between px-2 pt-1">
@@ -114,5 +140,6 @@ export default function Sidebar() {
         </button>
       </div>
     </aside>
+    </>
   );
 }

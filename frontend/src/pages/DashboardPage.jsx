@@ -129,14 +129,14 @@ export default function DashboardPage() {
       <Sidebar />
 
       {/* Top Bar: Telemetry & Status */}
-      <div className="absolute top-4 left-72 right-6 z-30 flex items-center justify-between pointer-events-none">
+      <div className="absolute top-4 left-16 lg:left-72 right-4 lg:right-6 z-30 flex items-center justify-between pointer-events-none overflow-x-auto pb-1">
         <SystemStatus />
       </div>
 
       {/* Main Command Center Floating Layout */}
-      <div className="absolute top-16 left-72 right-6 bottom-4 z-20 pointer-events-none flex flex-col justify-between gap-4">
+      <div className="absolute top-16 left-4 lg:left-72 right-4 lg:right-6 bottom-4 z-20 pointer-events-none flex flex-col justify-between gap-4 overflow-y-auto lg:overflow-hidden">
         {/* Top Input Bar */}
-        <div className="pointer-events-auto max-w-4xl">
+        <div className="pointer-events-auto max-w-4xl w-full">
           <AnalysisInput
             onRunAnalysis={handleRunAnalysis}
             isRunning={isRunningAnalysis}
@@ -144,9 +144,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Middle Panels Grid */}
-        <div className="flex-1 flex items-start justify-between gap-4 overflow-hidden pointer-events-none">
+        <div className="flex-1 flex flex-col md:flex-row items-start justify-between gap-4 overflow-visible lg:overflow-hidden pointer-events-none py-2 lg:py-0">
           {/* Left Stack: Layers & Telemetry */}
-          <div className="w-72 space-y-3 pointer-events-auto overflow-y-auto max-h-[calc(100vh-280px)]">
+          <div className="w-full md:w-72 space-y-3 pointer-events-auto overflow-y-visible lg:overflow-y-auto max-h-none lg:max-h-[calc(100vh-280px)]">
             <LayerPanel layers={layers} onToggleLayer={handleToggleLayer} />
             <RegionPanel
               regionName={regionCoords.name}
@@ -155,7 +155,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Right Stack: Workflow Trace & AI Analyst Drawer */}
-          <div className="w-80 md:w-96 space-y-3 pointer-events-auto overflow-y-auto max-h-[calc(100vh-280px)]">
+          <div className="w-full md:w-80 lg:w-96 space-y-3 pointer-events-auto overflow-y-visible lg:overflow-y-auto max-h-none lg:max-h-[calc(100vh-280px)]">
             <WorkflowTrace
               currentStepIndex={workflowStepIndex}
               isRunning={isRunningAnalysis}
@@ -166,7 +166,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Bottom Bar: Timeline Slider */}
-        <div className="pointer-events-auto max-w-2xl">
+        <div className="pointer-events-auto max-w-2xl w-full">
           <TemporalTimeline
             selectedYear={selectedYear}
             onChangeYear={setSelectedYear}

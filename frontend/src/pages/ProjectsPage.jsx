@@ -96,7 +96,7 @@ export default function ProjectsPage() {
       <Sidebar />
 
       {/* Main Content */}
-      <div className="absolute top-8 left-72 right-8 bottom-8 z-20 pointer-events-none overflow-y-auto">
+      <div className="absolute top-16 lg:top-8 left-4 lg:left-72 right-4 lg:right-8 bottom-4 lg:bottom-8 z-20 pointer-events-none overflow-y-auto">
         <div className="max-w-4xl pointer-events-auto space-y-6">
           <div className="flex items-center justify-between p-4 rounded-2xl text-readable-backdrop">
             <div className="space-y-1">

@@ -36,11 +36,16 @@ export default function SignUpPage() {
       navigate('/dashboard', { replace: true });
     } catch (err) {
       console.error('signup error:', err);
-      const msg =
-        err.response?.data?.error ||
-        err.response?.data?.message ||
-        err.message ||
-        'failed to create account';
+      let msg = 'failed to create account';
+      if (err.response?.data?.error) {
+        msg = err.response.data.error;
+      } else if (err.response?.data?.message) {
+        msg = err.response.data.message;
+      } else if (err.code === 'ERR_NETWORK' || err.message?.toLowerCase().includes('network')) {
+        msg = 'unable to reach geovision api. please check connection and try again.';
+      } else if (err.message) {
+        msg = err.message;
+      }
       setError(msg.toLowerCase());
     } finally {
       setLoading(false);
