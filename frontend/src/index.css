@@ -1,9 +1,11 @@
-@import "tailwindcss";
-@config "../tailwind.config.js";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @font-face {
   font-family: 'Aeonik Pro';
-  src: url('/fonts/AeonikPro-Regular.woff2') format('woff2');
+  src: local('Aeonik Pro'), local('AeonikPro-Regular'), local('Aeonik'),
+       url('https://fonts.cdnfonts.com/s/73917/AeonikPro-Regular.woff') format('woff');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -11,7 +13,8 @@
 
 @font-face {
   font-family: 'Aeonik Pro';
-  src: url('/fonts/AeonikPro-Medium.woff2') format('woff2');
+  src: local('Aeonik Pro Medium'), local('AeonikPro-Medium'),
+       url('https://fonts.cdnfonts.com/s/73917/AeonikPro-Medium.woff') format('woff');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -19,51 +22,112 @@
 
 @font-face {
   font-family: 'Aeonik Pro';
-  src: url('/fonts/AeonikPro-Bold.woff2') format('woff2');
+  src: local('Aeonik Pro Bold'), local('AeonikPro-Bold'),
+       url('https://fonts.cdnfonts.com/s/73917/AeonikPro-Bold.woff') format('woff');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
-@layer base {
-  body {
-    @apply bg-background text-primary antialiased selection:bg-accent/30 selection:text-white;
-  }
+:root {
+  font-family: 'Aeonik Pro', 'Space Grotesk', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
 }
 
-@layer components {
-  .glass {
-    @apply bg-[rgba(10,18,28,0.45)] backdrop-blur-[20px] backdrop-saturate-[140%] border border-white/5 shadow-[0_20px_80px_rgba(0,0,0,0.25)];
-  }
-  .glass-panel {
-    @apply bg-[rgba(10,18,28,0.45)] backdrop-blur-[20px] backdrop-saturate-[140%] border border-white/5 shadow-[0_20px_80px_rgba(0,0,0,0.25)] bg-gradient-to-br from-white/[0.055] to-white/[0.015];
-  }
-  .glass-card {
-    @apply bg-[rgba(10,18,28,0.45)] backdrop-blur-[20px] backdrop-saturate-[140%] border border-white/5 shadow-[0_20px_80px_rgba(0,0,0,0.25)] bg-gradient-to-br from-white/[0.055] to-white/[0.015] transition-all duration-300 hover:border-white/10 hover:shadow-[0_20px_80px_rgba(0,0,0,0.4)];
-  }
-  .glass-nav {
-    @apply bg-[rgba(2,6,10,0.65)] backdrop-blur-[24px] backdrop-saturate-[140%] border-b border-white/5;
-  }
-  .glass-button {
-    @apply bg-[rgba(10,18,28,0.45)] backdrop-blur-[20px] backdrop-saturate-[140%] border border-white/5 shadow-[0_20px_80px_rgba(0,0,0,0.25)] bg-white/5 hover:bg-white/10 transition-colors duration-300 font-medium;
-  }
-  .glass-input {
-    @apply bg-[rgba(10,18,28,0.6)] backdrop-blur-[12px] border border-white/10 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all duration-300 placeholder-secondary/50;
-  }
+body {
+  margin: 0;
+  background-color: #020408;
+  color: #e2e8f0;
+  overflow-x: hidden;
+  letter-spacing: -0.015em;
 }
 
-/* Custom Scrollbar for dark theme */
+/* Glassmorphism primitives */
+.glass-panel {
+  background: rgba(8, 14, 28, 0.65);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+}
+
+.glass-panel-subtle {
+  background: rgba(6, 11, 22, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel-interactive {
+  background: rgba(8, 14, 28, 0.65);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel-interactive:hover {
+  background: rgba(12, 20, 40, 0.8);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6), 0 0 20px 0 rgba(56, 189, 248, 0.08);
+}
+
+.glass-pill {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-input {
+  background: rgba(5, 10, 20, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-input:focus {
+  outline: none;
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.15);
+}
+
+/* Cesium container adjustments */
+.cesium-viewer {
+  font-family: 'Aeonik Pro', inherit !important;
+}
+
+.cesium-widget-credits,
+.cesium-credit-logoContainer,
+.cesium-credit-textContainer {
+  display: none !important;
+}
+
+.cesium-viewer-bottom {
+  display: none !important;
+}
+
+.cesium-viewer-toolbar {
+  top: 16px !important;
+  right: 16px !important;
+}
+
+/* Custom sleek scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
+
 ::-webkit-scrollbar-track {
-  background: #05080D; 
+  background: #020408;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #1e293b; 
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155; 
+  background: rgba(56, 189, 248, 0.4);
 }

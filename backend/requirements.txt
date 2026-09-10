@@ -1,9 +1,0 @@
-fastapi
-uvicorn[standard]
-sqlalchemy
-pydantic
-pydantic-settings
-pwdlib[argon2]
-python-jose[cryptography]
-python-multipart
-email-validator
