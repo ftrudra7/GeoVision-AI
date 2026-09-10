@@ -85,7 +85,7 @@ export default function WorkflowTrace({
         <div className="p-3.5 rounded-xl bg-sky-500/10 border border-sky-400/20 space-y-2 text-xs font-mono">
           <div className="text-sky-300 font-medium lowercase flex items-center justify-between">
             <span>generated insight summary</span>
-            <span className="text-[9px] text-gray-400">confidence: 94.2%</span>
+            <span className="text-[9px] text-gray-400">workflow traceable</span>
           </div>
           <p className="text-gray-300 lowercase leading-relaxed font-light text-[11px]">
             {resultSummary}

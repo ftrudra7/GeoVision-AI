@@ -12,11 +12,20 @@ export default function GlassPanel({
   transition,
   ...props
 }) {
-  const baseClasses = variant === 'subtle'
-    ? 'glass-panel-subtle'
-    : interactive
-    ? 'glass-panel-interactive'
-    : 'glass-panel';
+  let baseClasses = 'glass-level-2';
+  if (variant === 'level-1' || variant === 'atmospheric') {
+    baseClasses = 'glass-level-1';
+  } else if (variant === 'level-3' || variant === 'focused') {
+    baseClasses = 'glass-level-3';
+  } else if (variant === 'subtle') {
+    baseClasses = 'glass-panel-subtle';
+  } else if (variant === 'level-2' || variant === 'workspace' || variant === 'default') {
+    baseClasses = interactive ? 'glass-panel-interactive' : 'glass-level-2';
+  }
+
+  if (interactive && !baseClasses.includes('interactive')) {
+    baseClasses += ' glass-panel-interactive';
+  }
 
   const combinedClasses = `${baseClasses} rounded-2xl ${className}`;
 

@@ -32,19 +32,19 @@ export default function GisOrchestrationSection() {
         <div className="flex items-center gap-3">
           <span className="text-xs font-mono text-sky-400">04</span>
           <div className="w-8 h-[1px] bg-sky-400/40" />
-          <span className="text-xs font-mono text-gray-400 uppercase tracking-widest">
+          <span className="text-xs font-mono text-gray-400 lowercase tracking-wider">
             intelligent gis orchestration
           </span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           {/* Left explanation */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-6 p-6 rounded-2xl text-readable-backdrop">
             <h2 className="text-3xl md:text-5xl font-normal text-white lowercase tracking-tight leading-tight">
-              llm reasoning converted into deterministic geoprocessing.
+              query reasoning converted into deterministic geoprocessing.
             </h2>
-            <p className="text-base text-gray-400 font-light lowercase leading-relaxed">
-              geovision bridges foundation models with real geographic information systems. queries are validated, mapped to raster algebra operations, and executed with verifiable provenance.
+            <p className="text-base text-gray-300/90 font-normal lowercase leading-relaxed">
+              geovision bridges analytical models with real geographic information systems. spatial intents are decomposed, mapped to raster algebra operations, and executed with verifiable provenance.
             </p>
 
             <div className="flex items-center gap-3 pt-2">

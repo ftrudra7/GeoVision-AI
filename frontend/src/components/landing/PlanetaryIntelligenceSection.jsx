@@ -7,22 +7,22 @@ export default function PlanetaryIntelligenceSection() {
   const telemetry = [
     {
       icon: Database,
-      value: '100+ tb',
-      label: 'multispectral satellite data streamed daily',
+      value: 'multi-source',
+      label: 'multispectral satellite catalog & optical rasters',
     },
     {
       icon: Cpu,
-      value: 'sub-second',
-      label: 'spatial query decomposition & workflow planning',
+      value: 'declarative',
+      label: 'natural-language spatial query decomposition',
     },
     {
       icon: Radio,
-      value: 'temporal',
-      label: 'continuous multi-sensor change detection layers',
+      value: 'multi-temporal',
+      label: 'multi-epoch change detection & surface differential',
     },
     {
       icon: ShieldCheck,
-      value: 'verifiable',
+      value: 'traceable',
       label: 'transparent GIS processing trace on every insight',
     },
   ];
@@ -34,18 +34,18 @@ export default function PlanetaryIntelligenceSection() {
         <div className="flex items-center gap-3">
           <span className="text-xs font-mono text-sky-400">02</span>
           <div className="w-8 h-[1px] bg-sky-400/40" />
-          <span className="text-xs font-mono text-gray-400 uppercase tracking-widest">
+          <span className="text-xs font-mono text-gray-400 lowercase tracking-wider">
             planetary intelligence
           </span>
         </div>
 
         {/* Editorial statement */}
-        <div className="space-y-6 max-w-3xl">
+        <div className="space-y-6 max-w-3xl p-6 rounded-2xl text-readable-backdrop">
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-normal text-white lowercase tracking-tight leading-tight">
             the planet generates more data than humans can understand.
           </h2>
-          <p className="text-base md:text-lg text-gray-400 font-light lowercase leading-relaxed">
-            satellites, sensors, and spatial records capture every square meter of earth continuously. geovision transforms raw petabytes into structured geographic intelligence through autonomous GIS workflows.
+          <p className="text-base md:text-lg text-gray-300/90 font-normal lowercase leading-relaxed">
+            satellites, sensors, and spatial records capture every square meter of earth continuously. geovision transforms complex data streams into structured geographic intelligence through traceable GIS workflows.
           </p>
         </div>
 

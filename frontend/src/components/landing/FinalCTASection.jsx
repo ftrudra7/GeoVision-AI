@@ -12,20 +12,22 @@ export default function FinalCTASection() {
         <div className="flex items-center justify-center gap-3">
           <span className="text-xs font-mono text-sky-400">10</span>
           <div className="w-8 h-[1px] bg-sky-400/40" />
-          <span className="text-xs font-mono text-gray-400 uppercase tracking-widest">
+          <span className="text-xs font-mono text-gray-400 lowercase tracking-wider">
             planetary access
           </span>
         </div>
 
         {/* Headline */}
-        <h2 className="text-4xl md:text-6xl lg:text-7xl font-normal text-white lowercase tracking-tight leading-tight">
-          ready to see the planet differently?
-        </h2>
+        <div className="space-y-6 p-6 rounded-2xl text-readable-backdrop">
+          <h2 className="text-4xl md:text-6xl lg:text-7xl font-normal text-white lowercase tracking-tight leading-tight">
+            ready to ask the planet a question?
+          </h2>
 
-        {/* Subtitle */}
-        <p className="text-base md:text-lg text-gray-400 font-light lowercase max-w-xl mx-auto">
-          join analysts, researchers, and spatial engineers utilizing autonomous geospatial intelligence workflows.
-        </p>
+          {/* Subtitle */}
+          <p className="text-base md:text-lg text-gray-300/90 font-normal lowercase max-w-xl mx-auto">
+            join analysts, researchers, and spatial engineers utilizing autonomous geospatial intelligence workflows.
+          </p>
+        </div>
 
         {/* CTAs */}
         <div className="flex flex-wrap items-center justify-center gap-4 pt-4">

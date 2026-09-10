@@ -38,6 +38,14 @@ export default function App() {
         }
       />
       <Route
+        path="/dashboard/new-analysis"
+        element={
+          <ProtectedRoute>
+            <AnalysisPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/dashboard/projects"
         element={
           <ProtectedRoute>

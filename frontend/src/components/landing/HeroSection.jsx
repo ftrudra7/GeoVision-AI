@@ -28,9 +28,9 @@ export default function HeroSection({ onExploreClick }) {
           transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           className="text-5xl md:text-7xl lg:text-8xl font-normal tracking-tighter text-white lowercase leading-[1.05]"
         >
-          see the planet <br />
+          ask the planet <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-200 via-sky-200 to-sky-400">
-            differently.
+            a question.
           </span>
         </motion.h1>
 
@@ -39,9 +39,9 @@ export default function HeroSection({ onExploreClick }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-xl text-lg md:text-xl text-gray-400 font-light lowercase leading-relaxed"
+          className="max-w-xl text-lg md:text-xl text-gray-300/90 font-normal lowercase leading-relaxed p-2 rounded-xl text-readable-backdrop"
         >
-          an intelligent geospatial platform for turning complex spatial questions into actionable insight.
+          turn natural-language questions into traceable geospatial intelligence.
         </motion.p>
 
         {/* Action buttons */}

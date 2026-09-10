@@ -44,17 +44,17 @@ export default function QuestionIntelligenceSection() {
         <div className="flex items-center gap-3">
           <span className="text-xs font-mono text-sky-400">03</span>
           <div className="w-8 h-[1px] bg-sky-400/40" />
-          <span className="text-xs font-mono text-gray-400 uppercase tracking-widest">
+          <span className="text-xs font-mono text-gray-400 lowercase tracking-wider">
             question → intelligence
           </span>
         </div>
 
         {/* Header */}
-        <div className="max-w-3xl space-y-4">
+        <div className="max-w-3xl space-y-4 p-6 rounded-2xl text-readable-backdrop">
           <h2 className="text-3xl md:text-5xl font-normal text-white lowercase tracking-tight">
             ask in natural language. receive structured geospatial intelligence.
           </h2>
-          <p className="text-gray-400 text-base font-light lowercase">
+          <p className="text-gray-300/90 text-base font-normal lowercase">
             from ambiguous spatial questions to multi-step geoprocessing pipelines.
           </p>
         </div>

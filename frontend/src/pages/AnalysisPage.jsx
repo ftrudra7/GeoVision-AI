@@ -3,38 +3,97 @@ import Sidebar from '../components/dashboard/Sidebar';
 import GlassPanel from '../components/common/GlassPanel';
 import GlassButton from '../components/common/GlassButton';
 import CesiumGlobe from '../components/cesium/CesiumGlobe';
+import AnalysisPlan from '../components/dashboard/AnalysisPlan';
+import AnalysisResultModal from '../components/dashboard/AnalysisResultModal';
 import { analysisService } from '../services/analysisService';
-import { Sparkles, Play, MapPin, Calendar, Layers, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Sparkles, Play, MapPin, Calendar, Layers, CheckCircle2, AlertCircle, ArrowRight, Eye, ShieldCheck } from 'lucide-react';
 
 export default function AnalysisPage() {
-  const [query, setQuery] = useState('what changed in this region between 2020 and 2024?');
-  const [region, setRegion] = useState('delhi ncr, india');
-  const [startYear, setStartYear] = useState('2020');
-  const [endYear, setEndYear] = useState('2024');
-  const [dataset, setDataset] = useState('sentinel-2 optical (10m)');
-  const [analysisType, setAnalysisType] = useState('change detection');
+  const [query, setQuery] = useState('what changed in delhi ncr between 2020 and 2024?');
+  const [hasInterpreted, setHasInterpreted] = useState(true);
+  const [showPlan, setShowPlan] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [createdAnalysis, setCreatedAnalysis] = useState(null);
+  const [showResultModal, setShowResultModal] = useState(false);
 
-  const handleSubmit = async (e) => {
+  // Dynamic interpretation parsing from query
+  const interpretQuery = (text) => {
+    const lower = text.toLowerCase();
+    let reg = 'delhi ncr, india';
+    if (lower.includes('mumbai')) reg = 'mumbai metropolitan region, india';
+    else if (lower.includes('bengaluru') || lower.includes('bangalore')) reg = 'bengaluru urban, india';
+    else if (lower.includes('singapore')) reg = 'singapore central, singapore';
+
+    let sYear = 2020;
+    let eYear = 2024;
+    const years = text.match(/\b(20\d\d)\b/g);
+    if (years && years.length >= 2) {
+      sYear = parseInt(years[0], 10);
+      eYear = parseInt(years[1], 10);
+    } else if (years && years.length === 1) {
+      eYear = parseInt(years[0], 10);
+      sYear = eYear - 4;
+    }
+
+    let aType = 'temporal change detection';
+    if (lower.includes('vegetation') || lower.includes('ndvi') || lower.includes('canopy')) {
+      aType = 'vegetation index (ndvi) differential';
+    } else if (lower.includes('flood') || lower.includes('water')) {
+      aType = 'hydrological surface water mapping';
+    } else if (lower.includes('urban') || lower.includes('built-up')) {
+      aType = 'built-up density expansion';
+    }
+
+    return {
+      query: text,
+      region: reg,
+      start_year: sYear,
+      end_year: eYear,
+      dataset: 'sentinel-2 optical l2a (10m)',
+      analysis_type: aType,
+    };
+  };
+
+  const currentPlan = interpretQuery(query);
+
+  const handleQueryChange = (e) => {
+    setQuery(e.target.value);
+    setHasInterpreted(true);
+    setStatusMsg('');
+  };
+
+  const handleReviewPlan = (e) => {
     e.preventDefault();
     if (!query.trim()) return;
+    setShowPlan(true);
+  };
 
+  const handleApproveAndRun = async () => {
     try {
-      setLoading(true);
+      setIsRunning(true);
       setStatusMsg('');
-      await analysisService.createAnalysis({
-        query: query.trim(),
-        region,
-        start_year: parseInt(startYear, 10),
-        end_year: parseInt(endYear, 10),
+
+      const result = await analysisService.createAnalysis({
+        query: currentPlan.query,
+        region: currentPlan.region,
+        start_year: currentPlan.start_year,
+        end_year: currentPlan.end_year,
         status: 'completed',
       });
-      setStatusMsg('analysis workflow dispatched & saved to history. (demo prototype execution)');
+
+      setCreatedAnalysis({
+        ...currentPlan,
+        id: result?.data?.id || 'live',
+      });
+
+      setStatusMsg('workflow successfully executed. analysis saved to mission history.');
+      setShowPlan(false);
+      setShowResultModal(true);
     } catch (err) {
-      setStatusMsg('error dispatching analysis: ' + (err.response?.data?.error || err.message));
+      setStatusMsg('error running analysis: ' + (err.response?.data?.error || err.message));
     } finally {
-      setLoading(false);
+      setIsRunning(false);
     }
   };
 
@@ -43,9 +102,15 @@ export default function AnalysisPage() {
       {/* Background Cesium Globe */}
       <div className="absolute inset-0 z-0">
         <CesiumGlobe
-          cameraTarget={{ lng: 77.2090, lat: 28.6139, height: 600000, pitch: -60, heading: 0 }}
+          cameraTarget={{ lng: 77.2090, lat: 28.6139, height: 750000, pitch: -60, heading: 0 }}
           interactive={true}
           autoRotate={false}
+          highlightRegion={{
+            lng: 77.2090,
+            lat: 28.6139,
+            radius: 50000.0,
+            name: 'delhi ncr'
+          }}
           markers={[{ lng: 77.2090, lat: 28.6139, title: 'analysis target: delhi ncr' }]}
         />
       </div>
@@ -55,127 +120,129 @@ export default function AnalysisPage() {
       {/* Main Content Layout */}
       <div className="absolute top-8 left-72 right-8 bottom-8 z-20 pointer-events-none overflow-y-auto">
         <div className="max-w-3xl pointer-events-auto space-y-6">
-          <div>
-            <span className="text-xs font-mono text-sky-400">new analysis</span>
+          {/* Header */}
+          <div className="p-4 rounded-2xl text-readable-backdrop space-y-1">
+            <span className="text-xs font-mono text-sky-400 lowercase tracking-wider">
+              new analysis • natural language gis
+            </span>
             <h1 className="text-3xl font-normal text-white lowercase tracking-tight">
-              spatial query & workflow dispatch
+              what do you want to understand?
             </h1>
+            <p className="text-xs text-gray-300 font-light lowercase">
+              ask any spatial question. geovision infers the region, temporal range, and suitable satellite workflows.
+            </p>
           </div>
 
           {statusMsg && (
-            <div className="flex items-center gap-2 p-3.5 rounded-xl bg-sky-500/10 border border-sky-400/20 text-xs font-mono text-sky-300">
-              <CheckCircle2 className="w-4 h-4" />
-              <span>{statusMsg}</span>
+            <div className="flex items-center justify-between p-4 rounded-xl bg-sky-500/15 border border-sky-400/30 text-xs font-mono text-sky-200">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>{statusMsg}</span>
+              </div>
+              {createdAnalysis && (
+                <button
+                  onClick={() => setShowResultModal(true)}
+                  className="px-3 py-1 rounded bg-sky-500/20 hover:bg-sky-500/40 text-sky-300 border border-sky-400/30 text-xs"
+                >
+                  open result view
+                </button>
+              )}
             </div>
           )}
 
-          <GlassPanel className="p-6 md:p-8 space-y-6 border border-white/10 shadow-2xl backdrop-blur-2xl">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-1.5">
+          {/* Primary Natural Language Query Card */}
+          <GlassPanel variant="level-2" className="p-6 md:p-8 space-y-6 border border-white/10 shadow-2xl">
+            <form onSubmit={handleReviewPlan} className="space-y-6">
+              <div className="space-y-2">
                 <label className="block text-xs font-mono text-gray-300 lowercase">
-                  natural language geospatial question
+                  enter spatial question
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="what changed in this region between 2020 and 2024?"
+                    onChange={handleQueryChange}
+                    placeholder="what changed in delhi ncr between 2020 and 2024?"
                     required
-                    className="w-full pl-10 pr-4 py-3 rounded-xl glass-input text-xs font-mono text-white placeholder-gray-500 lowercase"
+                    className="w-full pl-11 pr-4 py-4 rounded-xl glass-input text-sm font-mono text-white placeholder-gray-500 lowercase tracking-tight focus:border-sky-400"
                   />
-                  <Sparkles className="w-4 h-4 text-sky-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Sparkles className="w-5 h-5 text-sky-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-mono text-gray-300 lowercase">
-                    geographic region (aoi)
-                  </label>
-                  <select
-                    value={region}
-                    onChange={(e) => setRegion(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl glass-input text-xs font-mono text-gray-200 lowercase bg-[#060b18]"
-                  >
-                    <option value="delhi ncr, india">delhi ncr, india</option>
-                    <option value="mumbai metropolitan region, india">mumbai metropolitan region, india</option>
-                    <option value="bengaluru urban, india">bengaluru urban, india</option>
-                    <option value="singapore central, singapore">singapore central, singapore</option>
-                  </select>
-                </div>
+              {/* Interpretation preview badges */}
+              {hasInterpreted && (
+                <div className="p-4 rounded-xl bg-black/40 border border-white/[0.06] space-y-3">
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <span className="text-sky-400 lowercase">geovision interpreted your request</span>
+                    <span className="text-[10px] text-gray-500 lowercase">prototype interpretation</span>
+                  </div>
 
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-mono text-gray-300 lowercase">
-                    analysis algorithm
-                  </label>
-                  <select
-                    value={analysisType}
-                    onChange={(e) => setAnalysisType(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl glass-input text-xs font-mono text-gray-200 lowercase bg-[#060b18]"
-                  >
-                    <option value="change detection">change detection (temporal diff)</option>
-                    <option value="land cover">land cover classification</option>
-                    <option value="urban growth">urban growth index</option>
-                    <option value="vegetation">vegetation health (ndvi)</option>
-                    <option value="water analysis">water body boundary analysis</option>
-                  </select>
-                </div>
-              </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+                    <div className="flex items-center gap-2 p-2 rounded bg-white/[0.02] text-gray-300">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-gray-400">region:</span>
+                      <span className="text-white font-medium truncate">{currentPlan.region}</span>
+                    </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-mono text-gray-300 lowercase">
-                    constellation dataset
-                  </label>
-                  <select
-                    value={dataset}
-                    onChange={(e) => setDataset(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl glass-input text-xs font-mono text-gray-200 lowercase bg-[#060b18]"
-                  >
-                    <option value="sentinel-2 optical (10m)">sentinel-2 optical l2a (10m)</option>
-                    <option value="landsat-9 multispectral (30m)">landsat-9 multispectral (30m)</option>
-                    <option value="planetscope daily (3m)">planetscope daily composite (3m)</option>
-                  </select>
-                </div>
+                    <div className="flex items-center gap-2 p-2 rounded bg-white/[0.02] text-gray-300">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-gray-400">range:</span>
+                      <span className="text-white font-medium">{currentPlan.start_year} → {currentPlan.end_year}</span>
+                    </div>
 
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-mono text-gray-300 lowercase">
-                    temporal epochs
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      value={startYear}
-                      onChange={(e) => setStartYear(e.target.value)}
-                      className="w-1/2 px-3 py-2.5 rounded-xl glass-input text-xs font-mono text-white"
-                    />
-                    <span className="text-gray-500 font-mono">→</span>
-                    <input
-                      type="number"
-                      value={endYear}
-                      onChange={(e) => setEndYear(e.target.value)}
-                      className="w-1/2 px-3 py-2.5 rounded-xl glass-input text-xs font-mono text-white"
-                    />
+                    <div className="flex items-center gap-2 p-2 rounded bg-white/[0.02] text-gray-300">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-gray-400">analysis:</span>
+                      <span className="text-white font-medium truncate">{currentPlan.analysis_type}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2 p-2 rounded bg-white/[0.02] text-gray-300">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-gray-400">imagery:</span>
+                      <span className="text-white font-medium truncate">{currentPlan.dataset}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              <div className="pt-2">
+              {/* Action */}
+              <div className="flex items-center justify-between pt-2">
+                <div className="flex items-center gap-2 text-xs font-mono text-gray-400">
+                  <ShieldCheck className="w-4 h-4 text-sky-400" />
+                  <span>workflow preview ready</span>
+                </div>
+
                 <GlassButton
                   type="submit"
                   size="lg"
                   variant="primary"
-                  disabled={loading}
-                  icon={Play}
+                  icon={ArrowRight}
                 >
-                  {loading ? 'dispatching...' : 'run new analysis'}
+                  review analysis plan
                 </GlassButton>
               </div>
             </form>
           </GlassPanel>
+
+          {/* Analysis Plan Modal / Box */}
+          {showPlan && (
+            <AnalysisPlan
+              plan={currentPlan}
+              onApproveAndRun={handleApproveAndRun}
+              isRunning={isRunning}
+              onCancel={() => setShowPlan(false)}
+            />
+          )}
         </div>
       </div>
+
+      {/* Result Modal */}
+      <AnalysisResultModal
+        analysis={createdAnalysis}
+        isOpen={showResultModal}
+        onClose={() => setShowResultModal(false)}
+      />
     </div>
   );
 }

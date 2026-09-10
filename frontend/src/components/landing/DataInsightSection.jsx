@@ -38,17 +38,17 @@ export default function DataInsightSection() {
         <div className="flex items-center gap-3">
           <span className="text-xs font-mono text-sky-400">08</span>
           <div className="w-8 h-[1px] bg-sky-400/40" />
-          <span className="text-xs font-mono text-gray-400 uppercase tracking-widest">
+          <span className="text-xs font-mono text-gray-400 lowercase tracking-wider">
             data → insight
           </span>
         </div>
 
         {/* Section header */}
-        <div className="max-w-3xl space-y-4">
+        <div className="max-w-3xl space-y-4 p-6 rounded-2xl text-readable-backdrop">
           <h2 className="text-3xl md:text-5xl font-normal text-white lowercase tracking-tight">
             the end-to-end geospatial intelligence pipeline.
           </h2>
-          <p className="text-base text-gray-400 font-light lowercase">
+          <p className="text-base text-gray-300/90 font-normal lowercase">
             transparent progression from constellation signals to decisive planetary insight.
           </p>
         </div>
