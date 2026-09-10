@@ -35,7 +35,12 @@ export default function SignUpPage() {
       await signup(name, email, password);
       navigate('/dashboard', { replace: true });
     } catch (err) {
-      const msg = err.response?.data?.error || 'failed to create account';
+      console.error('signup error:', err);
+      const msg =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        err.message ||
+        'failed to create account';
       setError(msg.toLowerCase());
     } finally {
       setLoading(false);

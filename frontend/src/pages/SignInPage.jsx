@@ -32,7 +32,12 @@ export default function SignInPage() {
       await login(email, password);
       navigate(from, { replace: true });
     } catch (err) {
-      const msg = err.response?.data?.error || 'authentication failed. please check credentials.';
+      console.error('signin error:', err);
+      const msg =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        err.message ||
+        'authentication failed. please check credentials.';
       setError(msg.toLowerCase());
     } finally {
       setLoading(false);

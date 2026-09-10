@@ -1,7 +1,11 @@
 import axios from 'axios';
 
-// Normalize base URL from environment variable, fallback to local backend
-const rawBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Resolve base URL from environment variable, falling back to production URL in production mode or localhost in development mode
+const defaultBaseUrl = import.meta.env.PROD
+  ? 'https://geovision-ai-gr3h.onrender.com'
+  : 'http://localhost:8000';
+
+const rawBaseUrl = import.meta.env.VITE_API_URL || defaultBaseUrl;
 const baseURL = rawBaseUrl.replace(/\/+$/, '');
 
 const api = axios.create({
