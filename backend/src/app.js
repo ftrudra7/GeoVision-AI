@@ -10,7 +10,7 @@ import { errorHandler, notFoundHandler } from './middleware/error.js';
 
 const app = express();
 
-// CORS configuration allowing frontend development URLs
+// Allowed origins
 const allowedOrigins = [
   config.frontendUrl,
   'http://localhost:5173',
@@ -22,7 +22,14 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1 || origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+    if (
+      !origin ||
+      allowedOrigins.indexOf(origin) !== -1 ||
+      origin.startsWith('http://localhost:') ||
+      origin.startsWith('http://127.0.0.1:') ||
+      origin.endsWith('.vercel.app') ||
+      origin.includes('vercel.app')
+    ) {
       callback(null, true);
     } else {
       callback(new Error('not allowed by CORS'));

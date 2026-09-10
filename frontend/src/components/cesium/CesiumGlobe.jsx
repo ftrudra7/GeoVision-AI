@@ -2,8 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as Cesium from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 
-// Cesium Ion default public token fallback or OpenStreetMap/NaturalEarth imagery
-Cesium.Ion.defaultAccessToken = import.meta.env.VITE_CESIUM_ION_TOKEN || '';
+// Ensure base URL is set
+if (typeof window !== 'undefined' && !window.CESIUM_BASE_URL) {
+  window.CESIUM_BASE_URL = '/cesium/';
+}
 
 export default function CesiumGlobe({
   className = '',
@@ -24,159 +26,185 @@ export default function CesiumGlobe({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Prevent duplicate viewer initialization
-    if (viewerRef.current && !viewerRef.current.isDestroyed()) {
-      return;
-    }
+    let viewer = null;
+    let isCancelled = false;
 
-    let imageryProvider;
+    // Clean any prior contents
+    containerRef.current.innerHTML = '';
+
     try {
-      imageryProvider = new Cesium.ArcGisMapServerImageryProvider({
-        url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
-        enablePickFeatures: false
-      });
-    } catch {
-      imageryProvider = new Cesium.OpenStreetMapImageryProvider({
-        url: 'https://tile.openstreetmap.org/'
-      });
-    }
+      // Use local NaturalEarthII offline texture as guaranteed base layer
+      const localBaseLayer = Cesium.ImageryLayer.fromProviderAsync(
+        Cesium.TileMapServiceImageryProvider.fromUrl(
+          Cesium.buildModuleUrl('Assets/Textures/NaturalEarthII')
+        )
+      );
 
-    // Initialize clean Cesium Viewer
-    const viewer = new Cesium.Viewer(containerRef.current, {
-      animation: false,
-      baseLayerPicker: false,
-      fullscreenButton: false,
-      geocoder: false,
-      homeButton: false,
-      infoBox: false,
-      sceneModePicker: false,
-      selectionIndicator: false,
-      timeline: false,
-      navigationHelpButton: false,
-      navigationInstructionsInitiallyVisible: false,
-      scene3DOnly: true,
-      imageryProvider: imageryProvider,
-      contextOptions: {
-        webgl: {
-          alpha: true,
-          antialias: true,
-          preserveDrawingBuffer: true,
+      // Initialize Cesium Viewer with async baseLayer
+      viewer = new Cesium.Viewer(containerRef.current, {
+        animation: false,
+        baseLayerPicker: false,
+        fullscreenButton: false,
+        geocoder: false,
+        homeButton: false,
+        infoBox: false,
+        sceneModePicker: false,
+        selectionIndicator: false,
+        timeline: false,
+        navigationHelpButton: false,
+        navigationInstructionsInitiallyVisible: false,
+        scene3DOnly: true,
+        baseLayer: localBaseLayer,
+        contextOptions: {
+          webgl: {
+            alpha: true,
+            antialias: true,
+            preserveDrawingBuffer: true,
+          },
         },
-      },
-    });
+      });
 
-    viewerRef.current = viewer;
+      viewerRef.current = viewer;
 
-    // Enhance planetary styling
-    const scene = viewer.scene;
-    scene.backgroundColor = Cesium.Color.fromCssColorString('#020408');
-    scene.globe.baseColor = Cesium.Color.fromCssColorString('#030712');
-    scene.globe.enableLighting = true;
-    scene.globe.atmosphereLightIntensity = 1.8;
-    scene.globe.atmosphereRayleighCoefficient = new Cesium.Cartesian3(0.14, 0.28, 0.45);
-    scene.globe.showGroundAtmosphere = true;
-    scene.highDynamicRange = true;
+      // Enhance planetary atmosphere and visual styling
+      const scene = viewer.scene;
+      scene.backgroundColor = Cesium.Color.fromCssColorString('#020408');
+      scene.globe.baseColor = Cesium.Color.fromCssColorString('#030712');
+      scene.globe.enableLighting = true;
+      scene.globe.atmosphereLightIntensity = 1.6;
+      scene.globe.showGroundAtmosphere = true;
 
-    // Disable default interaction if requested
-    if (!interactive) {
-      scene.screenSpaceCameraController.enableRotate = false;
-      scene.screenSpaceCameraController.enableTranslate = false;
-      scene.screenSpaceCameraController.enableZoom = false;
-      scene.screenSpaceCameraController.enableTilt = false;
-      scene.screenSpaceCameraController.enableLook = false;
+      // Try loading high-resolution satellite imagery asynchronously on top
+      Cesium.ArcGisMapServerImageryProvider.fromUrl(
+        'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
+        { enablePickFeatures: false }
+      )
+        .then((provider) => {
+          if (!isCancelled && viewer && !viewer.isDestroyed()) {
+            viewer.imageryLayers.addImageryProvider(provider);
+          }
+        })
+        .catch(() => {
+          // Keep NaturalEarthII base layer
+        });
+
+      // Disable default interaction if requested
+      if (!interactive) {
+        scene.screenSpaceCameraController.enableRotate = false;
+        scene.screenSpaceCameraController.enableTranslate = false;
+        scene.screenSpaceCameraController.enableZoom = false;
+        scene.screenSpaceCameraController.enableTilt = false;
+        scene.screenSpaceCameraController.enableLook = false;
+      }
+
+      // Initial default planetary camera perspective
+      viewer.camera.setView({
+        destination: Cesium.Cartesian3.fromDegrees(78.0, 20.0, 24000000.0),
+        orientation: {
+          heading: Cesium.Math.toRadians(0.0),
+          pitch: Cesium.Math.toRadians(-90.0),
+          roll: 0.0,
+        },
+      });
+
+      // Slow planetary rotation handler (~120s per rotation)
+      if (autoRotate) {
+        const rotationSpeed = 0.0003;
+        let lastTime = Date.now();
+
+        const rotateCallback = () => {
+          if (!viewer || viewer.isDestroyed()) return;
+          const now = Date.now();
+          const delta = (now - lastTime) / 1000;
+          lastTime = now;
+
+          if (!isInteractingRef.current) {
+            viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z, rotationSpeed * delta);
+          }
+        };
+
+        viewer.scene.postRender.addEventListener(rotateCallback);
+        rotationListenerRef.current = rotateCallback;
+
+        // Interaction listeners to pause auto-rotation
+        const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+        handler.setInputAction(() => {
+          isInteractingRef.current = true;
+        }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+
+        handler.setInputAction(() => {
+          setTimeout(() => {
+            isInteractingRef.current = false;
+          }, 3500);
+        }, Cesium.ScreenSpaceEventType.LEFT_UP);
+
+        handler.setInputAction(() => {
+          isInteractingRef.current = true;
+          setTimeout(() => {
+            isInteractingRef.current = false;
+          }, 3500);
+        }, Cesium.ScreenSpaceEventType.WHEEL);
+      }
+
+      setIsReady(true);
+      if (onViewerReady) {
+        onViewerReady(viewer);
+      }
+    } catch (err) {
+      console.error('[CesiumGlobe init error]', err);
     }
 
-    // Initial default planetary camera perspective
-    viewer.camera.setView({
-      destination: Cesium.Cartesian3.fromDegrees(78.0, 20.0, 24000000.0),
-      orientation: {
-        heading: Cesium.Math.toRadians(0.0),
-        pitch: Cesium.Math.toRadians(-90.0),
-        roll: 0.0,
-      },
-    });
-
-    // Slow planetary rotation handler (approx 120s per rotation)
-    if (autoRotate) {
-      const rotationSpeed = 0.0003;
-      let lastTime = Date.now();
-
-      const rotateCallback = () => {
-        if (!viewer || viewer.isDestroyed()) return;
-        const now = Date.now();
-        const delta = (now - lastTime) / 1000;
-        lastTime = now;
-
-        if (!isInteractingRef.current) {
-          viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z, rotationSpeed * delta);
-        }
-      };
-
-      viewer.scene.postRender.addEventListener(rotateCallback);
-      rotationListenerRef.current = rotateCallback;
-
-      // Interaction listeners to pause auto-rotation
-      const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-      handler.setInputAction(() => {
-        isInteractingRef.current = true;
-      }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
-
-      handler.setInputAction(() => {
-        setTimeout(() => {
-          isInteractingRef.current = false;
-        }, 4000);
-      }, Cesium.ScreenSpaceEventType.LEFT_UP);
-
-      handler.setInputAction(() => {
-        isInteractingRef.current = true;
-        setTimeout(() => {
-          isInteractingRef.current = false;
-        }, 4000);
-      }, Cesium.ScreenSpaceEventType.WHEEL);
-    }
-
-    setIsReady(true);
-    if (onViewerReady) {
-      onViewerReady(viewer);
-    }
-
-    // Resize handling
+    // Resize observer
     const resizeObserver = new ResizeObserver(() => {
       if (viewer && !viewer.isDestroyed()) {
         viewer.resize();
       }
     });
-    resizeObserver.observe(containerRef.current);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
 
-    // Cleanup on unmount
+    // Strict cleanup on unmount
     return () => {
+      isCancelled = true;
       resizeObserver.disconnect();
+
       if (rotationListenerRef.current && viewer && !viewer.isDestroyed()) {
         viewer.scene.postRender.removeEventListener(rotationListenerRef.current);
+        rotationListenerRef.current = null;
       }
+
       if (viewer && !viewer.isDestroyed()) {
         viewer.destroy();
-        viewerRef.current = null;
+      }
+      viewerRef.current = null;
+
+      if (containerRef.current) {
+        containerRef.current.innerHTML = '';
       }
     };
-  }, []);
+  }, [interactive, autoRotate]);
 
   // Smooth camera flyTo when cameraTarget prop changes
   useEffect(() => {
     if (!isReady || !viewerRef.current || viewerRef.current.isDestroyed() || !cameraTarget) return;
 
-    const { lng, lat, height = 2000000, pitch = -45, heading = 0, duration = 2.5 } = cameraTarget;
+    const { lng, lat, height = 2000000, pitch = -45, heading = 0, duration = 2.0 } = cameraTarget;
 
-    viewerRef.current.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(lng, lat, height),
-      orientation: {
-        heading: Cesium.Math.toRadians(heading),
-        pitch: Cesium.Math.toRadians(pitch),
-        roll: 0.0,
-      },
-      duration: duration,
-      easingFunction: Cesium.EasingFunction.QUADRATIC_IN_OUT,
-    });
+    try {
+      viewerRef.current.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(lng, lat, height),
+        orientation: {
+          heading: Cesium.Math.toRadians(heading),
+          pitch: Cesium.Math.toRadians(pitch),
+          roll: 0.0,
+        },
+        duration: duration,
+        easingFunction: Cesium.EasingFunction.QUADRATIC_IN_OUT,
+      });
+    } catch (e) {
+      console.warn('[Cesium camera flyTo error]', e);
+    }
   }, [cameraTarget, isReady]);
 
   // Handle markers & highlight region

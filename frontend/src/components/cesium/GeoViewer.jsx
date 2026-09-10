@@ -20,17 +20,15 @@ export default function GeoViewer({
     let destroyed = false;
     const clockViewModel = new Cesium.ClockViewModel();
 
-    const getImagery = () => {
-      try {
-        return new Cesium.ArcGisMapServerImageryProvider({
-          url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
-          enablePickFeatures: false
-        });
-      } catch {
-        return new Cesium.OpenStreetMapImageryProvider({
-          url: 'https://tile.openstreetmap.org/'
-        });
-      }
+    container3DRef.current.innerHTML = '';
+    container2DRef.current.innerHTML = '';
+
+    const getBaseLayer = () => {
+      return Cesium.ImageryLayer.fromProviderAsync(
+        Cesium.TileMapServiceImageryProvider.fromUrl(
+          Cesium.buildModuleUrl('Assets/Textures/NaturalEarthII')
+        )
+      );
     };
 
     const options3D = {
@@ -45,7 +43,14 @@ export default function GeoViewer({
       timeline: false,
       navigationHelpButton: false,
       clockViewModel: clockViewModel,
-      imageryProvider: getImagery(),
+      baseLayer: getBaseLayer(),
+      contextOptions: {
+        webgl: {
+          alpha: true,
+          antialias: true,
+          preserveDrawingBuffer: true,
+        },
+      },
     };
 
     const options2D = {
@@ -61,81 +66,94 @@ export default function GeoViewer({
       navigationHelpButton: false,
       clockViewModel: clockViewModel,
       sceneMode: Cesium.SceneMode.SCENE2D,
-      imageryProvider: getImagery(),
+      baseLayer: getBaseLayer(),
+      contextOptions: {
+        webgl: {
+          alpha: true,
+          antialias: true,
+          preserveDrawingBuffer: true,
+        },
+      },
     };
 
-    const view3D = new Cesium.Viewer(container3DRef.current, options3D);
-    const view2D = new Cesium.Viewer(container2DRef.current, options2D);
+    let view3D = null;
+    let view2D = null;
 
-    view3DRef.current = view3D;
-    view2DRef.current = view2D;
+    try {
+      view3D = new Cesium.Viewer(container3DRef.current, options3D);
+      view2D = new Cesium.Viewer(container2DRef.current, options2D);
 
-    view3D.scene.backgroundColor = Cesium.Color.fromCssColorString('#020408');
-    view2D.scene.backgroundColor = Cesium.Color.fromCssColorString('#020408');
+      view3DRef.current = view3D;
+      view2DRef.current = view2D;
 
-    let worldPosition = Cesium.Cartesian3.fromDegrees(
-      initialPosition.lng,
-      initialPosition.lat,
-      0
-    );
-    let distance = initialPosition.height;
+      view3D.scene.backgroundColor = Cesium.Color.fromCssColorString('#020408');
+      view2D.scene.backgroundColor = Cesium.Color.fromCssColorString('#020408');
 
-    function sync2DView() {
-      if (destroyed || !view3D || view3D.isDestroyed() || !view2D || view2D.isDestroyed()) return;
-
-      const viewCenter = new Cesium.Cartesian2(
-        Math.floor(view3D.canvas.clientWidth / 2),
-        Math.floor(view3D.canvas.clientHeight / 2)
-      );
-
-      const newWorldPosition = view3D.scene.camera.pickEllipsoid(viewCenter);
-
-      if (Cesium.defined(newWorldPosition)) {
-        worldPosition = newWorldPosition;
-      }
-
-      distance = Cesium.Cartesian3.distance(
-        worldPosition,
-        view3D.scene.camera.positionWC
-      );
-
-      view2D.scene.camera.lookAt(
-        worldPosition,
-        new Cesium.Cartesian3(0.0, 0.0, distance)
-      );
-    }
-
-    view3D.camera.changed.addEventListener(sync2DView);
-    view3D.camera.percentageChanged = 0.01;
-
-    // Lock 2D camera manual controls to ensure master-slave 3D synchronization
-    const ctrl2D = view2D.scene.screenSpaceCameraController;
-    ctrl2D.enableRotate = false;
-    ctrl2D.enableTranslate = false;
-    ctrl2D.enableZoom = false;
-    ctrl2D.enableTilt = false;
-    ctrl2D.enableLook = false;
-
-    // Set initial viewpoint
-    view3D.camera.setView({
-      destination: Cesium.Cartesian3.fromDegrees(
+      let worldPosition = Cesium.Cartesian3.fromDegrees(
         initialPosition.lng,
         initialPosition.lat,
-        initialPosition.height
-      ),
-      orientation: {
-        heading: Cesium.Math.toRadians(0.0),
-        pitch: Cesium.Math.toRadians(-55.0),
-        roll: 0.0,
-      }
-    });
+        0
+      );
+      let distance = initialPosition.height;
 
-    sync2DView();
+      function sync2DView() {
+        if (destroyed || !view3D || view3D.isDestroyed() || !view2D || view2D.isDestroyed()) return;
+
+        const viewCenter = new Cesium.Cartesian2(
+          Math.floor(view3D.canvas.clientWidth / 2),
+          Math.floor(view3D.canvas.clientHeight / 2)
+        );
+
+        const newWorldPosition = view3D.scene.camera.pickEllipsoid(viewCenter);
+
+        if (Cesium.defined(newWorldPosition)) {
+          worldPosition = newWorldPosition;
+        }
+
+        distance = Cesium.Cartesian3.distance(
+          worldPosition,
+          view3D.scene.camera.positionWC
+        );
+
+        view2D.scene.camera.lookAt(
+          worldPosition,
+          new Cesium.Cartesian3(0.0, 0.0, distance)
+        );
+      }
+
+      view3D.camera.changed.addEventListener(sync2DView);
+      view3D.camera.percentageChanged = 0.01;
+
+      // Lock 2D camera manual controls to ensure master-slave 3D synchronization
+      const ctrl2D = view2D.scene.screenSpaceCameraController;
+      ctrl2D.enableRotate = false;
+      ctrl2D.enableTranslate = false;
+      ctrl2D.enableZoom = false;
+      ctrl2D.enableTilt = false;
+      ctrl2D.enableLook = false;
+
+      // Set initial viewpoint
+      view3D.camera.setView({
+        destination: Cesium.Cartesian3.fromDegrees(
+          initialPosition.lng,
+          initialPosition.lat,
+          initialPosition.height
+        ),
+        orientation: {
+          heading: Cesium.Math.toRadians(0.0),
+          pitch: Cesium.Math.toRadians(-55.0),
+          roll: 0.0,
+        }
+      });
+
+      sync2DView();
+    } catch (err) {
+      console.error('[GeoViewer init error]', err);
+    }
 
     return () => {
       destroyed = true;
       if (view3D && !view3D.isDestroyed()) {
-        view3D.camera.changed.removeEventListener(sync2DView);
         view3D.destroy();
         view3DRef.current = null;
       }
@@ -143,6 +161,8 @@ export default function GeoViewer({
         view2D.destroy();
         view2DRef.current = null;
       }
+      if (container3DRef.current) container3DRef.current.innerHTML = '';
+      if (container2DRef.current) container2DRef.current.innerHTML = '';
     };
   }, []);
 

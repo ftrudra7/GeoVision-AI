@@ -1,11 +1,15 @@
 import axios from 'axios';
 
+// Normalize base URL from environment variable, fallback to local backend
+const rawBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const baseURL = rawBaseUrl.replace(/\/+$/, '');
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000,
+  timeout: 30000,
 });
 
 api.interceptors.request.use(
@@ -23,7 +27,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Clear token on auth failure
+      // Clear token and user on auth expiration or invalid credentials
       localStorage.removeItem('geovision_token');
       localStorage.removeItem('geovision_user');
     }
