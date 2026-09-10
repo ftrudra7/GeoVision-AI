@@ -1,11 +1,30 @@
 import axios from 'axios';
 
-// Resolve base URL from environment variable, falling back to production URL in production mode or localhost in development mode
-const defaultBaseUrl = import.meta.env.PROD
-  ? 'https://geovision-ai-gr3h.onrender.com'
-  : 'http://localhost:8000';
+// Determine backend API URL safely across environments
+const getApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  
+  // If running in browser and on a remote domain (e.g. vercel.app), never use localhost
+  if (typeof window !== 'undefined') {
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isLocalhost) {
+      if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+        return envUrl;
+      }
+      return 'https://geovision-ai-gr3h.onrender.com';
+    }
+  }
 
-const rawBaseUrl = import.meta.env.VITE_API_URL || defaultBaseUrl;
+  // Running in development / node / localhost
+  if (envUrl) {
+    return envUrl;
+  }
+  return import.meta.env.PROD
+    ? 'https://geovision-ai-gr3h.onrender.com'
+    : 'http://localhost:8000';
+};
+
+const rawBaseUrl = getApiBaseUrl();
 const baseURL = rawBaseUrl.replace(/\/+$/, '');
 
 const api = axios.create({
