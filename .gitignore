@@ -1,6 +1,16 @@
-node_modules/
+# Environment files
 .env
-.env.local
-*.log
+.env.*
+!.env.example
+
+# Dependencies and build outputs
+node_modules/
 dist/
+dist-ssr/
+
+# Logs
+logs/
+*.log
+
+# Database
 geovision.db
