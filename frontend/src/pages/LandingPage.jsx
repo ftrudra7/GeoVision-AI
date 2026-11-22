@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/common/Navbar';
 import CesiumGlobe from '../components/cesium/CesiumGlobe';
 import HeroSection from '../components/landing/HeroSection';
@@ -13,61 +13,66 @@ import CommandCenterPreviewSection from '../components/landing/CommandCenterPrev
 import FinalCTASection from '../components/landing/FinalCTASection';
 
 const cameraProgression = [
-  // 01 - Hero
-  { lng: 78.0, lat: 20.0, height: 24000000.0, pitch: -90, heading: 0, duration: 2.0 },
-  // 02 - Planetary Intelligence
-  { lng: 85.0, lat: 22.0, height: 15000000.0, pitch: -80, heading: 10, duration: 2.0 },
-  // 03 - Question -> Intelligence
-  { lng: 80.0, lat: 24.0, height: 8000000.0, pitch: -70, heading: 15, duration: 2.0 },
-  // 04 - Intelligent GIS Orchestration
-  { lng: 78.5, lat: 26.0, height: 3800000.0, pitch: -60, heading: 0, duration: 2.0 },
-  // 05 - Change Detection (Delhi NCR)
-  { lng: 77.2090, lat: 28.6139, height: 1200000.0, pitch: -50, heading: 350, duration: 2.0 },
-  // 06 - Satellite Intelligence
-  { lng: 77.2090, lat: 28.6139, height: 400000.0, pitch: -45, heading: 345, duration: 2.0 },
-  // 07 - AI Analyst
-  { lng: 77.2090, lat: 28.6139, height: 250000.0, pitch: -40, heading: 0, duration: 2.0 },
-  // 08 - Data -> Insight
-  { lng: 77.2090, lat: 28.6139, height: 650000.0, pitch: -50, heading: 10, duration: 2.0 },
-  // 09 - Command Center Preview
-  { lng: 77.2090, lat: 28.6139, height: 1100000.0, pitch: -55, heading: 0, duration: 2.0 },
-  // 10 - Final CTA
-  { lng: 78.0, lat: 20.0, height: 22000000.0, pitch: -90, heading: 0, duration: 2.5 },
+  { lng: 78.0, lat: 20.0, height: 24000000.0, pitch: -90, heading: 0, duration: 1.4 },
+  { lng: 85.0, lat: 22.0, height: 15000000.0, pitch: -80, heading: 10, duration: 1.4 },
+  { lng: 80.0, lat: 24.0, height: 8000000.0, pitch: -70, heading: 15, duration: 1.4 },
+  { lng: 78.5, lat: 26.0, height: 3800000.0, pitch: -60, heading: 0, duration: 1.4 },
+  { lng: 77.2090, lat: 28.6139, height: 1200000.0, pitch: -50, heading: 350, duration: 1.4 },
+  { lng: 77.2090, lat: 28.6139, height: 400000.0, pitch: -45, heading: 345, duration: 1.4 },
+  { lng: 77.2090, lat: 28.6139, height: 250000.0, pitch: -40, heading: 0, duration: 1.4 },
+  { lng: 77.2090, lat: 28.6139, height: 650000.0, pitch: -50, heading: 10, duration: 1.4 },
+  { lng: 77.2090, lat: 28.6139, height: 1100000.0, pitch: -55, heading: 0, duration: 1.4 },
+  { lng: 78.0, lat: 20.0, height: 22000000.0, pitch: -90, heading: 0, duration: 1.6 },
 ];
 
 export default function LandingPage() {
   const [activeSection, setActiveSection] = useState(0);
-  const containerRef = useRef(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const index = Math.min(
-        cameraProgression.length - 1,
-        Math.max(0, Math.floor((scrollY + windowHeight * 0.35) / windowHeight))
-      );
-      if (index !== activeSection) {
-        setActiveSection(index);
+    let frameId = null;
+    let lastIndex = -1;
+
+    const updateActiveSection = () => {
+      frameId = null;
+      const markerY = window.innerHeight * 0.35;
+      const sections = document.querySelectorAll('.landing-story > section');
+      if (!sections.length) return;
+
+      let activeIndex = 0;
+      sections.forEach((section, index) => {
+        if (section.getBoundingClientRect().top <= markerY) activeIndex = index;
+      });
+
+      const boundedIndex = Math.min(cameraProgression.length - 1, activeIndex);
+      if (boundedIndex !== lastIndex) {
+        lastIndex = boundedIndex;
+        setActiveSection(boundedIndex);
       }
     };
 
+    const handleScroll = () => {
+      if (frameId === null) frameId = window.requestAnimationFrame(updateActiveSection);
+    };
+
+    updateActiveSection();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [activeSection]);
+    window.addEventListener('resize', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
+    };
+  }, []);
 
   const handleExploreClick = () => {
-    const element = document.getElementById('story');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    document.getElementById('story')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   return (
-    <div ref={containerRef} className="relative w-full min-h-screen bg-[#020408] text-white">
+    <div className="relative w-full min-h-screen bg-[#020408] text-white">
       <Navbar />
 
-      {/* Fixed Background Cesium Globe */}
       <div className="fixed inset-0 z-0 pointer-events-auto">
         <CesiumGlobe
           cameraTarget={cameraProgression[activeSection]}
@@ -88,8 +93,7 @@ export default function LandingPage() {
         />
       </div>
 
-      {/* Storytelling Narrative Sections */}
-      <div className="relative z-10">
+      <div className="relative z-10 landing-story">
         <HeroSection onExploreClick={handleExploreClick} />
         <PlanetaryIntelligenceSection />
         <QuestionIntelligenceSection />
