@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import GlassPanel from '../common/GlassPanel';
 import GlassButton from '../common/GlassButton';
-import { X, MapPin, Calendar, Layers, GitCommit, CheckCircle2, ShieldCheck, Download, SlidersHorizontal, AlertCircle, Share2 } from 'lucide-react';
+import { X, MapPin, Calendar, Layers, ShieldCheck, SlidersHorizontal, AlertCircle } from 'lucide-react';
 
 export default function AnalysisResultModal({
   analysis,
@@ -28,9 +28,9 @@ export default function AnalysisResultModal({
           <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-white/[0.08]">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
                 <span className="text-xs font-mono text-sky-400 lowercase tracking-wider">
-                  analysis result • {analysisId}
+                  saved request preview • {analysisId}
                 </span>
               </div>
               <h2 className="text-2xl md:text-3xl font-normal text-white lowercase tracking-tight">
@@ -40,7 +40,7 @@ export default function AnalysisResultModal({
 
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-mono px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-400/20 lowercase">
-                prototype demonstration
+                prototype • no geospatial execution
               </span>
               <button
                 onClick={onClose}
@@ -107,31 +107,31 @@ export default function AnalysisResultModal({
                 <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-1">
                   <div className="flex items-center gap-1.5 text-gray-400 text-[11px] lowercase">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                    execution status
+                    request status
                   </div>
-                  <div className="text-emerald-400 font-medium lowercase">completed</div>
-                  <div className="text-gray-500 text-[10px]">trace validated</div>
+                  <div className="text-amber-300 font-medium lowercase">saved</div>
+                  <div className="text-gray-500 text-[10px]">processing not connected</div>
                 </div>
               </div>
 
               {/* Spatial Synthesis Box */}
               <div className="p-5 rounded-xl bg-black/40 border border-white/[0.08] space-y-3 font-mono text-xs">
                 <div className="flex items-center justify-between text-gray-300">
-                  <span className="text-sky-300 font-semibold lowercase">executive synthesis</span>
-                  <span className="text-[10px] text-gray-500">pipeline output</span>
+                  <span className="text-sky-300 font-semibold lowercase">request summary</span>
+                  <span className="text-[10px] text-gray-500">interface preview</span>
                 </div>
                 <p className="text-gray-300/90 leading-relaxed font-light lowercase">
-                  temporal change detection pipeline processed multispectral rasters across {region} between {startYear} and {endYear}. surface differentials indicate localized built-up expansion in peripheral transit corridors and agricultural land-use transitions.
+                  This request describes a possible analysis for {region} between {startYear} and {endYear}. Satellite imagery has not been retrieved and no raster or vector processing has been performed.
                 </p>
                 <div className="flex flex-wrap gap-2 pt-2">
                   <span className="px-2.5 py-1 rounded bg-sky-500/15 border border-sky-400/30 text-[11px] text-sky-300 font-mono lowercase">
-                    built-up index differential
+                    planned: change detection
                   </span>
                   <span className="px-2.5 py-1 rounded bg-emerald-500/15 border border-emerald-400/30 text-[11px] text-emerald-300 font-mono lowercase">
-                    vegetation canopy tracking
+                    planned: vegetation monitoring
                   </span>
                   <span className="px-2.5 py-1 rounded bg-white/10 border border-white/20 text-[11px] text-gray-300 font-mono lowercase">
-                    coordinate-grounded vectors
+                    planned: spatial outputs
                   </span>
                 </div>
               </div>
@@ -142,8 +142,8 @@ export default function AnalysisResultModal({
           {activeTab === 'comparison' && (
             <div className="space-y-4 animate-fade-in">
               <div className="flex items-center justify-between text-xs font-mono text-gray-400">
-                <span>baseline: {startYear} (optical reference)</span>
-                <span>observation: {endYear} (updated pass)</span>
+                <span>baseline: {startYear} (illustrative UI only)</span>
+                <span>observation: {endYear} (illustrative UI only)</span>
               </div>
 
               {/* Interactive Comparison Canvas */}
@@ -155,11 +155,11 @@ export default function AnalysisResultModal({
                       {endYear} — observation layer
                     </div>
                     <div className="text-[11px] font-mono text-gray-400 max-w-sm mx-auto lowercase">
-                      [sentinel-2 optical l2a • cloud mask: filtered]
+                      [Sentinel-2 integration planned • no imagery loaded]
                     </div>
                     <div className="pt-2 flex justify-center gap-2">
                       <span className="px-2.5 py-1 rounded bg-sky-500/20 border border-sky-400/30 text-[11px] text-sky-300 font-mono lowercase">
-                        built-up surface: updated
+                        illustrative observation placeholder
                       </span>
                     </div>
                   </div>
@@ -175,11 +175,11 @@ export default function AnalysisResultModal({
                       {startYear} — baseline reference
                     </div>
                     <div className="text-[11px] font-mono text-gray-400 max-w-sm mx-auto lowercase">
-                      [historical multispectral pass]
+                      [illustrative baseline placeholder]
                     </div>
                     <div className="pt-2 flex justify-center gap-2">
                       <span className="px-2.5 py-1 rounded bg-white/10 border border-white/20 text-[11px] text-gray-300 font-mono lowercase">
-                        built-up surface: baseline
+                        illustrative baseline placeholder
                       </span>
                     </div>
                   </div>
@@ -207,7 +207,7 @@ export default function AnalysisResultModal({
               </div>
 
               <div className="flex items-center justify-between text-xs font-mono text-gray-500">
-                <span>drag slider horizontally to inspect temporal shift</span>
+                <span>drag slider to inspect the interface mock-up</span>
                 <span>epoch delta: {sliderPos}%</span>
               </div>
             </div>
@@ -217,18 +217,18 @@ export default function AnalysisResultModal({
           {activeTab === 'provenance' && (
             <div className="space-y-4 animate-fade-in">
               <div className="text-xs font-mono text-gray-300 lowercase">
-                observable pipeline execution trace
+                planned workflow stages • not an execution trace
               </div>
 
               <div className="space-y-3 font-mono text-xs">
                 {[
-                  { step: '01', name: 'query received', desc: `query: "${query}"`, status: 'completed' },
-                  { step: '02', name: 'region resolved', desc: `aoi bounds computed for ${region}`, status: 'completed' },
-                  { step: '03', name: 'imagery selected', desc: `sentinel-2 optical l2a passes for ${startYear} & ${endYear}`, status: 'completed' },
-                  { step: '04', name: 'preprocessing', desc: 'cloud masking, atmospheric correction, orthorectification', status: 'completed' },
-                  { step: '05', name: 'change detection', desc: 'normalized difference built-up index raster algebra differential', status: 'completed' },
-                  { step: '06', name: 'spatial analysis', desc: 'spatial vector generation & statistical parcel aggregation', status: 'completed' },
-                  { step: '07', name: 'result generated', desc: 'traceable insight synthesized with full data provenance', status: 'completed' },
+                  { step: '01', name: 'request saved', desc: `query: "${query}"`, status: 'saved' },
+                  { step: '02', name: 'area of interest', desc: `region preview: ${region}`, status: 'planned' },
+                  { step: '03', name: 'dataset discovery', desc: 'MODIS / Sentinel data discovery is planned', status: 'planned' },
+                  { step: '04', name: 'preprocessing', desc: 'raster preprocessing integration is planned', status: 'planned' },
+                  { step: '05', name: 'geospatial analysis', desc: 'validated raster / vector operations are planned', status: 'planned' },
+                  { step: '06', name: 'result validation', desc: 'uncertainty and result validation are planned', status: 'planned' },
+                  { step: '07', name: 'report generation', desc: 'evidence-backed reporting is planned', status: 'planned' },
                 ].map((item, idx) => (
                   <div
                     key={idx}
@@ -254,7 +254,7 @@ export default function AnalysisResultModal({
           <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/[0.08]">
             <div className="flex items-center gap-2 text-xs font-mono text-gray-400 lowercase">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>data provenance: esa copernicus sentinel-2 • geovision v2</span>
+              <span>data provenance will be available after source integrations</span>
             </div>
 
             <div className="flex items-center gap-3">

@@ -82,7 +82,7 @@ export default function HistoryPage() {
               <div className="space-y-1">
                 <div className="text-xl font-medium text-white lowercase">no history records yet</div>
                 <p className="text-xs text-gray-400 lowercase font-light max-w-md mx-auto">
-                  run an analysis query from the command center to populate your verifiable activity trail.
+                  save an analysis request from the command center to populate your request history.
                 </p>
               </div>
               <div className="pt-2">
@@ -105,7 +105,7 @@ export default function HistoryPage() {
                 >
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      <span className="w-2 h-2 rounded-full bg-amber-400" />
                       <span className="text-sm font-mono text-white lowercase font-medium group-hover:text-sky-200 transition-colors">
                         {h.action || h.query}
                       </span>
@@ -125,7 +125,7 @@ export default function HistoryPage() {
                         </span>
                       )}
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-400/20">
-                        completed
+                        saved request
                       </span>
                     </div>
                   </div>
@@ -141,7 +141,7 @@ export default function HistoryPage() {
                       className="px-3 py-1.5 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-400/30 text-xs font-mono flex items-center gap-1.5 transition-colors"
                     >
                       <Eye className="w-3.5 h-3.5" />
-                      <span>open</span>
+                      <span>view request</span>
                     </button>
                   </div>
                 </GlassPanel>

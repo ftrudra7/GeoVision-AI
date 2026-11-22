@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import GlassPanel from '../common/GlassPanel';
 import GlassButton from '../common/GlassButton';
-import { Sparkles, Play, Search, MapPin, Calendar, Layers, Sliders } from 'lucide-react';
+import { Sparkles, Save, MapPin, Calendar, Layers, Sliders } from 'lucide-react';
 
 export default function AnalysisInput({ onRunAnalysis, isRunning = false }) {
   const [query, setQuery] = useState('what changed in this region between 2020 and 2024?');
   const [region, setRegion] = useState('delhi ncr, india');
   const [startYear, setStartYear] = useState('2020');
   const [endYear, setEndYear] = useState('2024');
-  const [dataset, setDataset] = useState('sentinel-2');
+  const [dataset, setDataset] = useState('Sentinel-2 (planned integration)');
   const [analysisType, setAnalysisType] = useState('change detection');
 
   const analysisTypes = [
@@ -21,10 +21,10 @@ export default function AnalysisInput({ onRunAnalysis, isRunning = false }) {
   ];
 
   const datasets = [
-    'sentinel-2 optical (10m)',
-    'landsat-9 multispectral (30m)',
-    'planetscope daily composite (3m)',
-    'sentinel-1 synthetic aperture radar (sar)',
+    'MODIS Terra (planned integration)',
+    'MODIS Aqua (planned integration)',
+    'Sentinel-1 (planned integration)',
+    'Sentinel-2 (planned integration)',
   ];
 
   const regions = [
@@ -72,9 +72,9 @@ export default function AnalysisInput({ onRunAnalysis, isRunning = false }) {
               size="sm"
               variant="primary"
               disabled={isRunning || !query.trim()}
-              icon={Play}
+              icon={Save}
             >
-              {isRunning ? 'processing...' : 'run analysis'}
+              {isRunning ? 'saving request...' : 'save request'}
             </GlassButton>
           </div>
         </div>
